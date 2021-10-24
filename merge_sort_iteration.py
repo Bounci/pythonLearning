@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # author：57213
-# time：2021/10/24
-# description：(2路)归并排序 ①递归式
+# time：2021/10/23
+# description：(2路)归并排序 ②迭代式
+
 
 def merge(lists, left, mid, right):
     """
@@ -37,34 +38,38 @@ def merge(lists, left, mid, right):
         left = left + 1
 
 
-def merge_sort_recursion(lists, left, right):
+def merge_sort_iteration(lists, length):
     """
-    递归地实现归并排序。
+    归并排序的迭代实现。
 
     :param lists: 待排序列表
-    :param left: 子列表索引起始
-    :param right: 子列表索引结束
-    :return: 对序列进行归并排序结果
+    :param length: 子序列长度
+    :return: lists
     """
-    # 子序列中元素少于两个，则退出递归
-    if right < left + 1:
-        return lists
-    mid = (left + right) // 2  # 划分子序列
-    merge_sort_recursion(lists, left, mid)
-    merge_sort_recursion(lists, mid + 1, right)
-    merge(lists, left, mid, right)  # 治：合并两子序列
+    i = 0
+    # 对相邻两子表进行归并
+    while i + 2 * length - 1 < len(lists):
+        merge(lists, i, i + length - 1, i + 2 * length - 1)
+        i = i + 2 * length
+    # 某子表长度不为length时
+    if i + length - 1 < len(lists):
+        merge(lists, i, i + length - 1, len(lists) - 1)
 
 
 def merge_sort(lists):
     """
-    归并排序
+    归并排序。
     """
-    list2sort = lists.copy()  # 复制待排序列表
-    merge_sort_recursion(list2sort, 0, len(list2sort) - 1)
+    list2sort = lists.copy()
+    length = 1
+    # 迭代，不同子序列长度
+    while length < len(list2sort):
+        merge_sort_iteration(list2sort, length)
+        length = 2 * length
     return list2sort
 
 
 if __name__ == '__main__':
     lists1 = [1, 4, 6, 8, 3, 7, 9, 10, 2, 5, 6]
     print("原数据：", lists1)
-    print("（2路）归并排序(递归)结果：", merge_sort(lists1))
+    print("（2路）归并排序(迭代)结果：", merge_sort(lists1))
