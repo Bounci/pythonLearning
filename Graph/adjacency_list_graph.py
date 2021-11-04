@@ -31,7 +31,7 @@ class ALGraph(object):
         使用邻接矩阵生成图的邻接表。
 
         :param matrix: 邻接矩阵
-        :param graph_type: 图的类型，0：无向图（默认）；1：有向图
+        :param graph_type: 图的类型，1：无向图（默认）；0：有向图
         """
         self.graph_type = graph_type
         self.__vertex_num = len(matrix)  # 记录图中包含的顶点数量
@@ -61,13 +61,13 @@ class ALGraph(object):
                 # 邻接矩阵中不为0和无穷大处，表示二者间有边
                 if matrix[row][column] != 0 and matrix[row][column] != float('inf'):
                     # 无向图
-                    if self.graph_type == 0:
+                    if self.graph_type == 1:
                         edge_node = EdgeNode(column, matrix[row][column])
                         self.__insert_edge_node(row, edge_node)  # 向某头结点的邻接列表中插入边结点
                         edge_node_inv = EdgeNode(row, matrix[row][column])
                         self.__insert_edge_node(column, edge_node_inv)  # 向某头结点的邻接列表中插入边结点
                     # 有向图
-                    if self.graph_type == 1:
+                    if self.graph_type == 0:
                         edge_node = EdgeNode(column, matrix[row][column])
                         self.__insert_edge_node(row, edge_node)  # 向某头结点的邻接列表中插入边结点
 
@@ -135,7 +135,7 @@ class ALGraph(object):
         # 顶点存在的前提下
         if self.__vertex_is_exist(vertex):
             # 无向图
-            if self.graph_type == 0:
+            if self.graph_type == 1:
                 degree = (out_degree + in_degree) / 2
             else:  # 有向图
                 degree = out_degree + in_degree
@@ -187,14 +187,14 @@ class ALGraph(object):
         if not self.__vertex_is_exist(end):
             self.add_vertex(end)
         # 无向图
-        if self.graph_type == 0:
+        if self.graph_type == 1:
             edge_node = EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
             self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
             edge_node_inv = EdgeNode(start, weight)
             self.__insert_edge_node(self.__get_vertex_index_in_list(end), edge_node_inv)
         # 有向图
-        if self.graph_type == 1:
+        if self.graph_type == 0:
             edge_node = EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
             self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
@@ -226,5 +226,7 @@ if __name__ == '__main__':
     algraph.display_algraph()
     # 测试：添加结点
     algraph.add_vertex(6)
+    # 测试：添加边
+    algraph.add_edge(6, 5, 2)
     # 输出图的邻接列表
     algraph.display_algraph()
