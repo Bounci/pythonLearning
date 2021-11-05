@@ -2,38 +2,20 @@
 # author：57213
 # description：图存储结构————邻接列表
 
-# 邻接表图结构存储————头结点类
-class Vertex(object):
-    def __init__(self, index):
-        """初始化头结点。"""
-        self.index = index  # 初始化头结点编号
-        self.first_arc = None  # 初始化头结点的第一个边结点为None，表示头结点与其他结点间无边（弧）
-
-
-# 邻接表图结构存储————边结点类
-class EdgeNode(object):
-    def __init__(self, index, weight=1):
-        """
-        初始化边结点。
-
-        :param index: 边结点编号
-        :param weight: 边的权重，默认为1
-        """
-        self.index = index  # 初始化边结点的结点编号
-        self.weight = weight  # 初始化边结点与头结点间边的权重，默认为1
-        self.next_arc = None  # 初始化边结点的下一个结点为None
+from Graph import Vertex
+from Graph import EdgeNode
 
 
 # 图——邻接列表存储结构
 class ALGraph(object):
     def __init__(self, matrix, graph_type=0 | 1):
         """
-        初始化类：使用邻接矩阵生成图的邻接表。
+        构造函数：使用邻接矩阵生成图的邻接表。
 
         :param matrix: 邻接矩阵
         :param graph_type: 图的类型，1：无向图（默认）；0：有向图
         """
-        self.graph_type = graph_type
+        self.__graph_type = graph_type
         self.__vertex_num = len(matrix)  # 记录图中包含的顶点数量
         self.adjacency_list = []  # 图的邻接列表
         # 判断邻接矩阵是否规范构建
@@ -51,7 +33,7 @@ class ALGraph(object):
         """
         # 建立头结点列表
         for i in range(self.__vertex_num):
-            self.adjacency_list.append(Vertex(i))
+            self.adjacency_list.append(Vertex.Vertex(i))
         # 根据邻接矩阵建立邻接列表
         for row in range(self.__vertex_num):
             for column in range(self.__vertex_num):
@@ -61,14 +43,14 @@ class ALGraph(object):
                 # 邻接矩阵中不为0和无穷大处，表示二者间有边
                 if matrix[row][column] != 0 and matrix[row][column] != float('inf'):
                     # 无向图
-                    if self.graph_type == 1:
-                        edge_node = EdgeNode(column, matrix[row][column])
+                    if self.__graph_type == 1:
+                        edge_node = EdgeNode.EdgeNode(column, matrix[row][column])
                         self.__insert_edge_node(row, edge_node)  # 向某头结点的邻接列表中插入边结点
-                        edge_node_inv = EdgeNode(row, matrix[row][column])
+                        edge_node_inv = EdgeNode.EdgeNode(row, matrix[row][column])
                         self.__insert_edge_node(column, edge_node_inv)  # 向某头结点的邻接列表中插入边结点
                     # 有向图
-                    if self.graph_type == 0:
-                        edge_node = EdgeNode(column, matrix[row][column])
+                    if self.__graph_type == 0:
+                        edge_node = EdgeNode.EdgeNode(column, matrix[row][column])
                         self.__insert_edge_node(row, edge_node)  # 向某头结点的邻接列表中插入边结点
 
     def __insert_edge_node(self, row, edge_node):
@@ -135,7 +117,7 @@ class ALGraph(object):
         # 顶点存在的前提下
         if self.__vertex_is_exist(vertex):
             # 无向图
-            if self.graph_type == 1:
+            if self.__graph_type == 1:
                 degree = (out_degree + in_degree) // 2
             else:  # 有向图
                 degree = out_degree + in_degree
@@ -156,6 +138,7 @@ class ALGraph(object):
 
     def get_out_degree(self, vertex):
         """求有向图某一顶点的出度。"""
+        # 即相应邻接“链表”中边结点的个数
         out_degree = 0
         edge_node = self.adjacency_list[self.__get_vertex_index_in_list(vertex)].first_arc
         while edge_node is not None:
@@ -164,13 +147,64 @@ class ALGraph(object):
         return out_degree
 
     def add_vertex(self, index):
-        """像图中添加结点。"""
+        """向图中添加结点。"""
         # 判断要添加的结点是否已存在
         if self.__vertex_is_exist(index):
+            print("结点{}已存在".format(index))
             return
         else:
-            self.adjacency_list.append(Vertex(index))
+            self.adjacency_list.append(Vertex.Vertex(index))
             self.__vertex_num = self.__vertex_num + 1  # 图的结点数增加1
+            print("成功添加结点{}！".format(index))
+
+    def delete_vertex(self, index):
+        """
+        删除顶点及其相关边或弧。
+
+        :param index: 要删除的顶点编号
+        """
+        # 待删除顶点不存在，不做任何处理
+        if not self.__vertex_is_exist(index):
+            print("结点{}不存在！".format(index))
+            return
+        # 有向图
+        n = self.__get_vertex_index_in_list(index)  # 记录结点在头结点表中的索引值
+        temp = self.adjacency_list.pop(n)  # 删除相应单链表
+        self.__vertex_num = self.__vertex_num - 1
+        # 无向图，需要额外利用temp在其他结点的邻接链表中删除相关边结点
+        if self.__graph_type == 1:
+            edge_node = temp.first_arc  # 记录与要删除的结点间有边的结点
+            while edge_node is not None:
+                edge_node_index = edge_node.index  # 与要删除的结点间有边的结点的编号
+                self.__remove__edge_node(edge_node_index, index)
+                edge_node = edge_node.next_arc
+        print("成功删除结点{}！".format(index))
+
+    def __remove__edge_node(self, edge_node_index, remove_index):
+        """
+        从头结点的邻接链表中删除相关边结点。
+
+        :param edge_node_index: 与要删除的结点间有边的结点的编号
+        :param remove_index:  要删除的结点编号
+        """
+        n = self.__get_vertex_index_in_list(edge_node_index)
+        pre = self.adjacency_list[n]  # 头结点
+        node = pre.first_arc  # 与头结点最近的边结点，必不为None
+        flag = 0  # 用于标记目前操作节点前一结点为头结点
+        while node is not None:
+            if flag == 0:
+                if node.index == remove_index:
+                    pre.first_arc = node.next_arc
+                    break
+                pre = pre.first_arc
+                node = node.next_arc
+                flag = 1
+            else:
+                if node.index == remove_index:
+                    pre.next_arc = node.next_arc
+                    break
+                pre.next_arc = node.next_arc
+                node = node.next_arc
 
     def add_edge(self, start, end, weight=1):
         """
@@ -187,21 +221,23 @@ class ALGraph(object):
         if not self.__vertex_is_exist(end):
             self.add_vertex(end)
         # 无向图
-        if self.graph_type == 1:
-            edge_node = EdgeNode(end, weight)
+        if self.__graph_type == 1:
+            edge_node = EdgeNode.EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
             self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
-            edge_node_inv = EdgeNode(start, weight)
+            edge_node_inv = EdgeNode.EdgeNode(start, weight)
             self.__insert_edge_node(self.__get_vertex_index_in_list(end), edge_node_inv)
+            print("成功添加边{0}--{1}".format(start, end))
         # 有向图
-        if self.graph_type == 0:
-            edge_node = EdgeNode(end, weight)
+        if self.__graph_type == 0:
+            edge_node = EdgeNode.EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
             self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
+            print("成功添加边{0}->{1}".format(start, end))
 
     def display_algraph(self):
         """输出图的邻接列表。"""
-        print("邻接列表为：")
+        print("图的邻接列表为：")
         for i in range(self.__vertex_num):
             output = "   结点" + str(self.adjacency_list[i].index)
             edge_node = self.adjacency_list[i].first_arc
@@ -222,16 +258,27 @@ if __name__ == '__main__':
     ]
 
     # region # 无向图测试
+    print("----------------无向图测试----------------")
     # 构建图的邻接列表结构
     non_dir_algraph = ALGraph(adjacency_matrix)
     # 输出图的邻接列表
+    print("----原邻接列表----")
     non_dir_algraph.display_algraph()
+    print("图中顶点数为：", non_dir_algraph.get_vertex_num())
     # 测试：添加结点
     non_dir_algraph.add_vertex(6)  # 添加不存在的点
     non_dir_algraph.add_vertex(2)  # 添加已有点
     # 测试：添加边
     non_dir_algraph.add_edge(6, 5, 2)  # （边的一个结点为之前图中不存在的）
     non_dir_algraph.add_edge(0, 5, 8)
+    print("----添加结点及边后----")
+    print("图中顶点数为：", non_dir_algraph.get_vertex_num())
+    # 输出有向图的邻接列表
+    non_dir_algraph.display_algraph()
+    # 删除顶点
+    non_dir_algraph.delete_vertex(5)
+    print("----删除一个结点后----")
+    print("图中顶点数为：", non_dir_algraph.get_vertex_num())
     # 输出有向图的邻接列表
     non_dir_algraph.display_algraph()
     # 测试：边权值获取
@@ -241,17 +288,22 @@ if __name__ == '__main__':
     # endregion
 
     # region # 有向图测试
-    dir_algraph = ALGraph(adjacency_matrix, 0)      # 构建图的邻接列表
-    dir_algraph.display_algraph()       # 输出邻接列表
+    print("----------------有向图测试----------------")
+    dir_algraph = ALGraph(adjacency_matrix, 0)  # 构建图的邻接列表
+    print("----原邻接列表----")
+    dir_algraph.display_algraph()  # 输出邻接列表
     # 测试：顶点的度
     print("顶点2的度：", dir_algraph.get_vertex_degree(2))
     print("顶点2的入度：", dir_algraph.get_in_degree(2))
     print("顶点2的出度：", dir_algraph.get_out_degree(2))
-
-    dir_algraph.add_edge(9, 2, 2)       # 添加边
-    dir_algraph.display_algraph()       # 输出邻接列表
+    dir_algraph.add_edge(9, 2, 2)  # 添加边
+    print("----添加边后----")
+    dir_algraph.display_algraph()  # 输出邻接列表
     # 测试：顶点的度
     print("顶点2的度：", dir_algraph.get_vertex_degree(2))
     print("顶点2的入度：", dir_algraph.get_in_degree(2))
     print("顶点2的出度：", dir_algraph.get_out_degree(2))
+    print("----删除结点后----")
+    dir_algraph.delete_vertex(2)
+    dir_algraph.display_algraph()  # 输出邻接列表
     # endregion
