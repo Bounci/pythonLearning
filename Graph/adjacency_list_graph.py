@@ -28,7 +28,7 @@ class EdgeNode(object):
 class ALGraph(object):
     def __init__(self, matrix, graph_type=0 | 1):
         """
-        使用邻接矩阵生成图的邻接表。
+        初始化类：使用邻接矩阵生成图的邻接表。
 
         :param matrix: 邻接矩阵
         :param graph_type: 图的类型，1：无向图（默认）；0：有向图
@@ -136,7 +136,7 @@ class ALGraph(object):
         if self.__vertex_is_exist(vertex):
             # 无向图
             if self.graph_type == 1:
-                degree = (out_degree + in_degree) / 2
+                degree = (out_degree + in_degree) // 2
             else:  # 有向图
                 degree = out_degree + in_degree
             return degree
@@ -220,13 +220,38 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 6],
         [0, 0, 0, 0, 0],
     ]
+
+    # region # 无向图测试
     # 构建图的邻接列表结构
-    algraph = ALGraph(adjacency_matrix)
+    non_dir_algraph = ALGraph(adjacency_matrix)
     # 输出图的邻接列表
-    algraph.display_algraph()
+    non_dir_algraph.display_algraph()
     # 测试：添加结点
-    algraph.add_vertex(6)
+    non_dir_algraph.add_vertex(6)  # 添加不存在的点
+    non_dir_algraph.add_vertex(2)  # 添加已有点
     # 测试：添加边
-    algraph.add_edge(6, 5, 2)
-    # 输出图的邻接列表
-    algraph.display_algraph()
+    non_dir_algraph.add_edge(6, 5, 2)  # （边的一个结点为之前图中不存在的）
+    non_dir_algraph.add_edge(0, 5, 8)
+    # 输出有向图的邻接列表
+    non_dir_algraph.display_algraph()
+    # 测试：边权值获取
+    print("边34的权值：", non_dir_algraph.get_edge_value(3, 4))
+    # 测试：顶点度获取
+    print("顶点2的度：", non_dir_algraph.get_vertex_degree(2))
+    # endregion
+
+    # region # 有向图测试
+    dir_algraph = ALGraph(adjacency_matrix, 0)      # 构建图的邻接列表
+    dir_algraph.display_algraph()       # 输出邻接列表
+    # 测试：顶点的度
+    print("顶点2的度：", dir_algraph.get_vertex_degree(2))
+    print("顶点2的入度：", dir_algraph.get_in_degree(2))
+    print("顶点2的出度：", dir_algraph.get_out_degree(2))
+
+    dir_algraph.add_edge(9, 2, 2)       # 添加边
+    dir_algraph.display_algraph()       # 输出邻接列表
+    # 测试：顶点的度
+    print("顶点2的度：", dir_algraph.get_vertex_degree(2))
+    print("顶点2的入度：", dir_algraph.get_in_degree(2))
+    print("顶点2的出度：", dir_algraph.get_out_degree(2))
+    # endregion

@@ -4,13 +4,8 @@
 # description：使用随机列表测试排序算法
 
 import numpy as np
-import heap_sort
-import simple_sort_algorithm
-import merge_sort_iteration
-import merge_sort_recursion
-import quick_sort
-import shell_sort
-import simple_bucket_sort
+from Sort import heap_sort, merge_sort_recursion, simple_sort_algorithm, merge_sort_iteration, simple_bucket_sort, \
+    shell_sort, quick_sort
 
 if __name__ == '__main__':
     size = int(input("请输入欲排序列表（列表数据范围0~1000）长度："))
