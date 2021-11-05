@@ -150,7 +150,7 @@ class ALGraph(object):
         """向图中添加结点。"""
         # 判断要添加的结点是否已存在
         if self.__vertex_is_exist(index):
-            print("结点{}已存在".format(index))
+            print("结点{}已存在！".format(index))
             return
         else:
             self.adjacency_list.append(Vertex.Vertex(index))
@@ -167,20 +167,24 @@ class ALGraph(object):
         if not self.__vertex_is_exist(index):
             print("结点{}不存在！".format(index))
             return
-        # 有向图
         n = self.__get_vertex_index_in_list(index)  # 记录结点在头结点表中的索引值
         temp = self.adjacency_list.pop(n)  # 删除相应单链表
-        self.__vertex_num = self.__vertex_num - 1
-        # 无向图，需要额外利用temp在其他结点的邻接链表中删除相关边结点
+        self.__vertex_num = self.__vertex_num - 1       # 图结点数减少1
+        # 无向图，利用temp在其他结点的邻接链表中删除相关边结点
         if self.__graph_type == 1:
             edge_node = temp.first_arc  # 记录与要删除的结点间有边的结点
             while edge_node is not None:
                 edge_node_index = edge_node.index  # 与要删除的结点间有边的结点的编号
-                self.__remove__edge_node(edge_node_index, index)
+                self.remove_edge_node(edge_node_index, index)
                 edge_node = edge_node.next_arc
-        print("成功删除结点{}！".format(index))
+        # 有向图，需要额外遍历其他结点的邻接链表并删除相关边结点
+        if self.__graph_type == 0:
+            for i in range(self.__vertex_num):
+                edge_node_index = self.adjacency_list[i].index
+                self.remove_edge_node(edge_node_index, index)
+        print("成功删除结点{}及相关边！".format(index))
 
-    def __remove__edge_node(self, edge_node_index, remove_index):
+    def remove_edge_node(self, edge_node_index, remove_index):
         """
         从头结点的邻接链表中删除相关边结点。
 
@@ -195,15 +199,15 @@ class ALGraph(object):
             if flag == 0:
                 if node.index == remove_index:
                     pre.first_arc = node.next_arc
-                    break
+                    return
                 pre = pre.first_arc
                 node = node.next_arc
                 flag = 1
             else:
                 if node.index == remove_index:
                     pre.next_arc = node.next_arc
-                    break
-                pre.next_arc = node.next_arc
+                    return
+                pre = pre.next_arc
                 node = node.next_arc
 
     def add_edge(self, start, end, weight=1):
@@ -275,9 +279,9 @@ if __name__ == '__main__':
     print("图中顶点数为：", non_dir_algraph.get_vertex_num())
     # 输出有向图的邻接列表
     non_dir_algraph.display_algraph()
-    # 删除顶点
-    non_dir_algraph.delete_vertex(5)
     print("----删除一个结点后----")
+    # 删除顶点
+    non_dir_algraph.delete_vertex(1)
     print("图中顶点数为：", non_dir_algraph.get_vertex_num())
     # 输出有向图的邻接列表
     non_dir_algraph.display_algraph()
