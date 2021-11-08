@@ -83,7 +83,7 @@ class ALGraph(object):
                 return True
         return False
 
-    def __get_vertex_index_in_list(self, vertex_index):
+    def get_vertex_index_in_list(self, vertex_index):
         """获得顶点在头结点列表中的索引值。"""
         for index in range(self.__vertex_num):
             if self.adjacency_list[index].index == vertex_index:
@@ -100,7 +100,7 @@ class ALGraph(object):
         # 寻找边权重的前提：边的两个顶点均存在。
         if self.__vertex_is_exist(start) and self.__vertex_is_exist(end):
             weight = 0
-            index = self.__get_vertex_index_in_list(start)
+            index = self.get_vertex_index_in_list(start)
             edge_node = self.adjacency_list[index].first_arc
             while edge_node is not None:
                 if edge_node.index == end:
@@ -140,7 +140,7 @@ class ALGraph(object):
         """求有向图某一顶点的出度。"""
         # 即相应邻接“链表”中边结点的个数
         out_degree = 0
-        edge_node = self.adjacency_list[self.__get_vertex_index_in_list(vertex)].first_arc
+        edge_node = self.adjacency_list[self.get_vertex_index_in_list(vertex)].first_arc
         while edge_node is not None:
             out_degree = out_degree + 1
             edge_node = edge_node.next_arc
@@ -167,9 +167,9 @@ class ALGraph(object):
         if not self.__vertex_is_exist(index):
             print("结点{}不存在！".format(index))
             return
-        n = self.__get_vertex_index_in_list(index)  # 记录结点在头结点表中的索引值
+        n = self.get_vertex_index_in_list(index)  # 记录结点在头结点表中的索引值
         temp = self.adjacency_list.pop(n)  # 删除相应单链表
-        self.__vertex_num = self.__vertex_num - 1       # 图结点数减少1
+        self.__vertex_num = self.__vertex_num - 1  # 图结点数减少1
         # 无向图，利用temp在其他结点的邻接链表中删除相关边结点
         if self.__graph_type == 1:
             edge_node = temp.first_arc  # 记录与要删除的结点间有边的结点
@@ -191,7 +191,7 @@ class ALGraph(object):
         :param edge_node_index: 与要删除的结点间有边的结点的编号
         :param remove_index:  要删除的结点编号
         """
-        n = self.__get_vertex_index_in_list(edge_node_index)
+        n = self.get_vertex_index_in_list(edge_node_index)
         pre = self.adjacency_list[n]  # 头结点
         node = pre.first_arc  # 与头结点最近的边结点，必不为None
         flag = 0  # 用于标记目前操作节点前一结点为头结点
@@ -228,15 +228,15 @@ class ALGraph(object):
         if self.__graph_type == 1:
             edge_node = EdgeNode.EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
-            self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
+            self.__insert_edge_node(self.get_vertex_index_in_list(start), edge_node)
             edge_node_inv = EdgeNode.EdgeNode(start, weight)
-            self.__insert_edge_node(self.__get_vertex_index_in_list(end), edge_node_inv)
+            self.__insert_edge_node(self.get_vertex_index_in_list(end), edge_node_inv)
             print("成功添加边{0}--{1}".format(start, end))
         # 有向图
         if self.__graph_type == 0:
             edge_node = EdgeNode.EdgeNode(end, weight)
             # 向头结点的邻接列表中插入边结点
-            self.__insert_edge_node(self.__get_vertex_index_in_list(start), edge_node)
+            self.__insert_edge_node(self.get_vertex_index_in_list(start), edge_node)
             print("成功添加边{0}->{1}".format(start, end))
 
     def display_algraph(self):
