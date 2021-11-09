@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # author：Deng
-# time：2021/11/5
 # description：邻接列表 ———— 边结点类
 
 # 邻接表图结构存储————边结点类
